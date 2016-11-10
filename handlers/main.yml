@@ -1,5 +1,6 @@
 ---
 - name: restart webserver
+  become: yes
   service:
     name: "{{ php_webserver_daemon }}"
     state: restarted
@@ -7,6 +8,7 @@
   when: php_enable_webserver
 
 - name: restart php-fpm
+  become: yes
   service:
     name: "{{ php_fpm_daemon }}"
     state: restarted
