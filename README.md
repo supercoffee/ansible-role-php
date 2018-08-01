@@ -18,6 +18,10 @@ A list of the PHP packages to install (OS-specific by default). You'll likely wa
 
 _Note: If you're using Debian/Ubuntu, you also need to install `libapache2-mod-fastcgi` (for cgi/PHP-FPM) or `libapache2-mod-php7.0` (or a similar package depending on PHP version) if you want to use `mod_php` with Apache._
 
+    php_packages_extra: []
+
+A list of extra PHP packages to install without overriding the default list.
+
     php_enable_webserver: true
 
 If your usage of PHP is tied to a web server (e.g. Apache or Nginx), leave this default value. If you are using PHP server-side or to run some small application, set this value to `false` so this role doesn't attempt to interact with a web server.
@@ -30,9 +34,11 @@ The default values for the HTTP server deamon are `httpd` (used by Apache) for R
 
 (RedHat/CentOS only) If you have enabled any additional repositories (might I suggest [geerlingguy.repo-epel](https://github.com/geerlingguy/ansible-role-repo-epel) or [geerlingguy.repo-remi](https://github.com/geerlingguy/ansible-role-repo-remi)), those repositories can be listed under this variable (e.g. `remi-php70,epel`). This can be handy, as an example, if you want to install the latest version of PHP 7.0, which is in the Remi repository.
 
-    php_packages_state: "installed"
+    php_packages_state: "present"
 
-If you have enabled any additional repositories such as [geerlingguy.repo-epel](https://github.com/geerlingguy/ansible-role-repo-epel) or [geerlingguy.repo-remi](https://github.com/geerlingguy/ansible-role-repo-remi), you may want an easy way to swap PHP versions on the fly. By default, this is set to 'installed'. You can now override this variable to 'latest'. Combined with php_enablerepo, a user now doesn't need to manually uninstall the existing PHP packages before installing them from a different repository.
+If you have enabled any additional repositories such as [geerlingguy.repo-epel](https://github.com/geerlingguy/ansible-role-repo-epel) or [geerlingguy.repo-remi](https://github.com/geerlingguy/ansible-role-repo-remi), you may want an easy way to swap PHP versions on the fly. By default, this is set to `"present"`. You can override this variable to `"latest"` to upgrade to the latest available version. Combined with php_enablerepo`, a user now doesn't need to manually uninstall the existing PHP packages before installing them from a different repository.
+
+You can also use the [`geerlingguy.php-versions`](https://galaxy.ansible.com/geerlingguy/php-versions/) role to more easily switch between major PHP versions (e.g. 5.6, 7.0, 7.1, 7.2).
 
     php_install_recommends: yes
 
@@ -59,7 +65,7 @@ If you're using Apache, you can easily get it configured to work with PHP-FPM us
     php_fpm_pm_min_spare_servers: 5
     php_fpm_pm_max_spare_servers: 5
 
-Specific settings inside the default `www.conf` PHP-FPM pool. If you'd like to manage additional settings, you can do so either by replacing the file with your own template or using `lineinfile` like this role does inside `tasks/configure.yml`.
+Specific settings inside the default `www.conf` PHP-FPM pool. If you'd like to manage additional settings, you can do so either by replacing the file with your own template or using `lineinfile` like this role does inside `tasks/configure-fpm.yml`.
 
 ### php.ini settings
 
@@ -67,12 +73,16 @@ Specific settings inside the default `www.conf` PHP-FPM pool. If you'd like to m
 
 By default, all the extra defaults below are applied through the php.ini included with this role. You can self-manage your php.ini file (if you need more flexility in its configuration) by setting this to `false` (in which case all the below variables will be ignored).
 
+    php_fpm_pool_user: "[apache|nginx|other]" # default varies by OS
+    php_fpm_pool_group: "[apache|nginx|other]" # default varies by OS
     php_memory_limit: "256M"
     php_max_execution_time: "60"
     php_max_input_time: "60"
     php_max_input_vars: "1000"
     php_realpath_cache_size: "32K"
+    php_file_uploads: "On"
     php_upload_max_filesize: "64M"
+    php_max_file_uploads: "20"
     php_post_max_size: "32M"
     php_date_timezone: "America/Chicago"
     php_allow_url_fopen: "On"
@@ -154,6 +164,7 @@ Set this to `true` to install PHP from source instead of installing from package
 The version of PHP to install from source (a git branch, tag, or commit hash).
 
     php_source_clone_dir: "~/php-src"
+    php_source_clone_depth: 1
     php_source_install_path: "/opt/php"
     php_source_install_gmp_path: "/usr/include/x86_64-linux-gnu/gmp.h"
 
@@ -209,4 +220,4 @@ MIT / BSD
 
 ## Author Information
 
-This role was created in 2014 by [Jeff Geerling](http://www.jeffgeerling.com/), author of [Ansible for DevOps](https://www.ansiblefordevops.com/).
+This role was created in 2014 by [Jeff Geerling](https://www.jeffgeerling.com/), author of [Ansible for DevOps](https://www.ansiblefordevops.com/).
